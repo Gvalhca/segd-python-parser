@@ -6,6 +6,7 @@ SEG-D modified Parser based on ObsPy core module.
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
+import ast
 import ntpath
 import os
 import sys
@@ -324,10 +325,10 @@ class SegDParser:
         extdh['swath_id'] = Decoder.decode_bin(buf[868:872])
         extdh['seismic_trace_offset_removal_is_disabled'] = \
             Decoder.decode_bin_bool(buf[872:876])
-        _gps_microseconds = unpack('>Q', buf[876:884])[0]
-        _gps_time = UTCDateTime('19800106') + _gps_microseconds / 1e6
+        # _gps_microseconds = unpack('>Q', buf[876:884])[0]
+        # _gps_time = UTCDateTime('19800106') + _gps_microseconds / 1e6
         # _gps_time includes leap seconds (17 as for November 2016)
-        extdh['gps_time_of_acquisition'] = _gps_time
+        # extdh['gps_time_of_acquisition'] = _gps_time
         # 884-963 : reserved
         # 964-1023 : not used
         return extdh
@@ -476,19 +477,19 @@ class SegDParser:
         traceh = OrderedDict()
         _cut = Decoder.decode_bin(buf[0:1])
         # traceh['control_unit_type'] = _control_unit_types[_cut]
-        traceh['control_unit_serial_number'] = Decoder.decode_bin(buf[1:4])
-        traceh['channel_gain_scale'] = Decoder.decode_bin(buf[4:5])
-        traceh['channel_filter'] = Decoder.decode_bin(buf[5:6])
-        traceh['channel_data_error_overscaling'] = Decoder.decode_bin(buf[6:7])
-        _ces = Decoder.decode_bin(buf[7:8])
+        # traceh['control_unit_serial_number'] = Decoder.decode_bin(buf[1:4])
+        # traceh['channel_gain_scale'] = Decoder.decode_bin(buf[4:5])
+        # traceh['channel_filter'] = Decoder.decode_bin(buf[5:6])
+        # traceh['channel_data_error_overscaling'] = Decoder.decode_bin(buf[6:7])
+        # _ces = Decoder.decode_bin(buf[7:8])
         # traceh['channel_edited_status'] = _channel_edited_statuses[_ces]
-        traceh['channel_sample_to_mV_conversion_factor'] = Decoder.decode_flt(buf[8:12])
-        traceh['number_of_stacks_noisy'] = Decoder.decode_bin(buf[12:13])
-        traceh['number_of_stacks_low'] = Decoder.decode_bin(buf[13:14])
-        _channel_type_ids = {1: 'seis', 9: 'aux'}
-        _cti = Decoder.decode_bin(buf[14:15])
-        traceh['channel_type_id'] = _channel_type_ids[_cti]
-        _cp = Decoder.decode_bin(buf[15:16])
+        # traceh['channel_sample_to_mV_conversion_factor'] = Decoder.decode_flt(buf[8:12])
+        # traceh['number_of_stacks_noisy'] = Decoder.decode_bin(buf[12:13])
+        # traceh['number_of_stacks_low'] = Decoder.decode_bin(buf[13:14])
+        # _channel_type_ids = {1: 'seis', 9: 'aux'}
+        # _cti = Decoder.decode_bin(buf[14:15])
+        # traceh['channel_type_id'] = _channel_type_ids[_cti]
+        # _cp = Decoder.decode_bin(buf[15:16])
         # traceh['channel_process'] = _channel_processes[_cp]
         traceh['trace_max_value'] = Decoder.decode_flt(buf[16:20])
         traceh['trace_max_time_in_us'] = Decoder.decode_bin(buf[20:24])
@@ -550,7 +551,7 @@ class SegDParser:
         size = generalh['extended_header_length'] * 32
         extdh = self._read_extended_header(size)
         ext_hdr_lng = generalh['external_header_length']
-        if ext_hdr_lng == 0xFF:
+        if ext_hdr_lng == 165:
             ext_hdr_lng = generalh['external_header_blocks']
         size = ext_hdr_lng * 32
         extrh = self._read_external_header(size)
@@ -627,4 +628,4 @@ class SegDParser:
         trace_data_filepath = os.path.join(self._output_dir, self._segd_filename.split('.')[0]) + '.trace_data'
         np.set_printoptions(threshold=sys.maxsize, suppress=True, formatter={'float_kind': '{:0.16f}'.format})
         np.savetxt(trace_data_filepath, self.traces_data, fmt='%0.16f')
-        print(f'Wrote traces data of {self.path_leaf()} to {trace_data_filepath}')
+        print(f'Wrote traces data of {self.path_leaf()} with shape: {self.traces_data.shape} to {trace_data_filepath}')

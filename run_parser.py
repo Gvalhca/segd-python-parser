@@ -2,8 +2,8 @@ from segd_parser import SegDParser
 import os
 
 if __name__ == '__main__':
-    segd_path = os.path.join('path', 'to', 'your', 'file.segd')
-    # segd_path = os.path.join(os.sep, 'ssd', 'gazprom', 'data', 'raw', '00014547.segd')
+    # segd_path = os.path.join('path', 'to', 'your', 'file.segd')
+    segd_path = os.path.join(os.sep, 'ssd', 'gazprom', 'data', 'raw', '00000986.segd')
 
     # Usage example
     segd = SegDParser(segd_path)
